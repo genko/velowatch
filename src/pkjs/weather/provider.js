@@ -284,11 +284,10 @@ WeatherProvider.prototype.getPayload = function() {
     var daysPrecips = this.daysPop.slice(0, this.numDays).map(function(probability) {
         //TODO
         //15 means 100% probabilt, 0 is 0% (lower 4 bits of the byte)
-        //Add when it is going to rain (higher 4 bits)
-        // b1000 Sunrise   00:00-06:00
-        // b0100 Morning   06:00-12:00
-        // b0010 Afternoon 12:00-18:00
-        // b0001 Evening   18:00-24:00
+        //Add how much it is going to rain (higher 4 bits)
+        //Above 50 mm/h, clamp to 50 mm/h
+        //50 is transmitted as 15, 0 as 0
+        //Multiply value by 0.33 to encode into 4 bits and do ceiling to round up to next int
         return Math.round(probability * 15);
     });
     var tempsIntView = new Int16Array(temps);

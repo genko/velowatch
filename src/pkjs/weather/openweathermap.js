@@ -75,11 +75,17 @@ OpenWeatherMapProvider.prototype.withProviderData = function (lat, lon, force, c
         this.precipTrend = weatherData.hourly.map(function (entry) {
             return entry.pop;
         })
+        this.precipMMH = weatherData.hourly.map(function (entry) {
+            return entry.rain;
+        })
         this.daysTemp = weatherData.daily.map(function (entry) {
             return entry.temp.max;
         })
         this.daysPop = weatherData.daily.map(function (entry) {
             return entry.pop;
+        })
+        this.daysMMH = weatherData.daily.map(function (entry) {
+            return entry.rain;
         })
         this.daysIcon = weatherData.daily.map(function (entry) {
             return entry.weather[0].id;
