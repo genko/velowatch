@@ -266,6 +266,9 @@ WeatherProvider.prototype.getPayload = function() {
     var temps = this.tempTrend.slice(0, this.numEntries).map(function(temperature) {
         return Math.round(temperature);
     });
+    var windSpeeds = this.windSpeed.slice(0, this.numEntries).map(function(temperature) {
+        return Math.round(temperature);
+    });
     var daysTemp = this.daysTemp.slice(0, this.numDays).map(function(temperature) {
         return Math.round(temperature);
     });
@@ -291,9 +294,11 @@ WeatherProvider.prototype.getPayload = function() {
         return Math.round(probability * 15);
     });
     var tempsIntView = new Int16Array(temps);
+    var windSpeedsIntView = new Int16Array(windSpeeds);
     var daysTempIntView = new Int16Array(daysTemp);
     var daysIconsIntView = new Int16Array(daysIcons);
     var tempsByteArray = Array.prototype.slice.call(new Uint8Array(tempsIntView.buffer))
+    var windSpeedsByteArray = Array.prototype.slice.call(new Uint8Array(windSpeedsIntView.buffer))
     var daysTempsByteArray = Array.prototype.slice.call(new Uint8Array(daysTempIntView.buffer))
     var daysIconByteArray = Array.prototype.slice.call(new Uint8Array(daysIconsIntView.buffer))
     var sunEventsIntView = new Int32Array(this.sunEvents.map(function(sunEvent) {
@@ -306,6 +311,7 @@ WeatherProvider.prototype.getPayload = function() {
         'ICON_DAYS_INT16' : daysIconByteArray,
         'PRECIP_DAYS_UINT8' : daysPrecips,
         'PRECIP_TREND_UINT8': precips, // Holds values within [0,100]
+        'WINDSPEED_TREND_UINT8': windSpeedsByteArray,
         'FORECAST_START': this.startTime,
         'ADVICE': this.advice,
         'HOLIDAYS': this.holidays,

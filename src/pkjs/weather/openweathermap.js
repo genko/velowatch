@@ -78,6 +78,9 @@ OpenWeatherMapProvider.prototype.withProviderData = function (lat, lon, force, c
         this.precipMMH = weatherData.hourly.map(function (entry) {
             return entry.rain;
         })
+        this.windSpeed = weatherData.hourly.map(function (entry) {
+            return entry.wind_speed;
+        })
         this.daysTemp = weatherData.daily.map(function (entry) {
             return entry.temp.max;
         })
