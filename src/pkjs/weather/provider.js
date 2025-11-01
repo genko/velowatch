@@ -275,23 +275,22 @@ WeatherProvider.prototype.getPayload = function() {
     var daysIcons = this.daysIcon.slice(0, this.numDays).map(function(temperature) {
         return temperature;
     });
-    var precips = this.precipTrend.slice(0, this.numEntries).map(function(probability) {
-        //TODO
-        //15 means 100% probabilt, 0 is 0% (lower 4 bits of the byte)
-        //Add how much it is going to rain (higher 4 bits)
-        //Above 50 mm/h, clamp to 50 mm/h
-        //50 is transmitted as 15, 0 as 0
-        //Multiply value by 0.33 to encode into 4 bits and do ceiling to round up to next int
-        return Math.round(probability * 15);
+    const precips = this.precipTrend.slice(0, this.numEntries).map(p => Math.round(p * 15));
+
+    const precips_amount = this.precipMMH.slice(0, this.numEntries).map(a => {
+        if (a > 45) return 15;
+        return Math.ceil(a * 0.33);
     });
+
+    const combined = new Uint8Array(this.numEntries);
+
+    for (let i = 0; i < this.numEntries; i++) {
+        const high = precips[i] & 0x0F;         // ensure only 4 bits
+        const low = precips_amount[i] & 0x0F;   // ensure only 4 bits
+        combined[i] = (high << 4) | low;        // pack into one byte
+    }
     var daysPrecips = this.daysPop.slice(0, this.numDays).map(function(probability) {
-        //TODO
-        //15 means 100% probabilt, 0 is 0% (lower 4 bits of the byte)
-        //Add how much it is going to rain (higher 4 bits)
-        //Above 50 mm/h, clamp to 50 mm/h
-        //50 is transmitted as 15, 0 as 0
-        //Multiply value by 0.33 to encode into 4 bits and do ceiling to round up to next int
-        return Math.round(probability * 15);
+        return Math.round(probability * 100);
     });
     var tempsIntView = new Int16Array(temps);
     var windSpeedsIntView = new Int16Array(windSpeeds);
@@ -310,7 +309,7 @@ WeatherProvider.prototype.getPayload = function() {
         'TEMP_DAYS_INT16' : daysTempsByteArray,
         'ICON_DAYS_INT16' : daysIconByteArray,
         'PRECIP_DAYS_UINT8' : daysPrecips,
-        'PRECIP_TREND_UINT8': precips, // Holds values within [0,100]
+        'PRECIP_TREND_UINT8': combined,
         'WINDSPEED_TREND_UINT8': windSpeedsByteArray,
         'FORECAST_START': this.startTime,
         'ADVICE': this.advice,
