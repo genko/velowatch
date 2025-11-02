@@ -266,9 +266,12 @@ WeatherProvider.prototype.getPayload = function() {
     var temps = this.tempTrend.slice(0, this.numEntries).map(function(temperature) {
         return Math.round(temperature);
     });
-    var windSpeeds = this.windSpeed.slice(0, this.numEntries).map(function(temperature) {
-        return Math.round(temperature);
-    });
+    var windSpeeds = new Uint8Array(
+        this.windSpeed.slice(0, this.numEntries).map(function (windspeed) {
+            if (windspeed > 255) windspeed = 255;
+            return Math.round(windspeed);
+        })
+    );
     var daysTemp = this.daysTemp.slice(0, this.numDays).map(function(temperature) {
         return Math.round(temperature);
     });
@@ -282,7 +285,7 @@ WeatherProvider.prototype.getPayload = function() {
         return Math.ceil(a * 0.33);
     });
 
-    const combined = new Uint8Array(this.numEntries);
+    var combined = new Uint8Array(this.numEntries);
 
     for (let i = 0; i < this.numEntries; i++) {
         const high = precips[i] & 0x0F;         // ensure only 4 bits
@@ -293,11 +296,9 @@ WeatherProvider.prototype.getPayload = function() {
         return Math.round(probability * 100);
     });
     var tempsIntView = new Int16Array(temps);
-    var windSpeedsIntView = new Int16Array(windSpeeds);
     var daysTempIntView = new Int16Array(daysTemp);
     var daysIconsIntView = new Int16Array(daysIcons);
     var tempsByteArray = Array.prototype.slice.call(new Uint8Array(tempsIntView.buffer))
-    var windSpeedsByteArray = Array.prototype.slice.call(new Uint8Array(windSpeedsIntView.buffer))
     var daysTempsByteArray = Array.prototype.slice.call(new Uint8Array(daysTempIntView.buffer))
     var daysIconByteArray = Array.prototype.slice.call(new Uint8Array(daysIconsIntView.buffer))
     var sunEventsIntView = new Int32Array(this.sunEvents.map(function(sunEvent) {
@@ -310,7 +311,7 @@ WeatherProvider.prototype.getPayload = function() {
         'ICON_DAYS_INT16' : daysIconByteArray,
         'PRECIP_DAYS_UINT8' : daysPrecips,
         'PRECIP_TREND_UINT8': combined,
-        'WINDSPEED_TREND_UINT8': windSpeedsByteArray,
+        'WINDSPEED_TREND_UINT8': windspeeds,
         'FORECAST_START': this.startTime,
         'ADVICE': this.advice,
         'HOLIDAYS': this.holidays,
@@ -322,6 +323,7 @@ WeatherProvider.prototype.getPayload = function() {
         // The first byte determines whether the list of events starts on a sunrise (0) or sunset (1)
         'SUN_EVENTS': [this.sunEvents[0].type == 'sunrise' ? 0 : 1].concat(sunEventsByteArray)
     }
+    console.log(JSON.stringify(payload, null, 2));
     return payload;
 }
 
