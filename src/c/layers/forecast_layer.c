@@ -60,7 +60,7 @@ static void forecast_update_proc(Layer *layer, GContext *ctx) {
     if (windspeed > 100)
       windspeed = 100;
     int windspeed_h = (float)windspeed / 100.0 * (h - BOTTOM_AXIS_H);
-    points_windspeed[i] = GPoint(entry_x, h - BOTTOM_AXIS_H - precip_h);
+    points_windspeed[i] = GPoint(entry_x, h - BOTTOM_AXIS_H - windspeed_h);
     // Save a point for the temperature reading
     int temp = temps[i];
     int temp_h =
