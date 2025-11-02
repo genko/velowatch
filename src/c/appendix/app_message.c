@@ -138,7 +138,7 @@ static void inbox_received_callback(DictionaryIterator *iterator,
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped! Error %i", reason);
 }
 
 void app_message_init() {
@@ -147,7 +147,7 @@ void app_message_init() {
   app_message_register_inbox_dropped(inbox_dropped_callback);
 
   // Open AppMessage
-  const int inbox_size = 256;
+  const int inbox_size = 356;
   const int outbox_size = 0;
   app_message_open(inbox_size, outbox_size);
 }
