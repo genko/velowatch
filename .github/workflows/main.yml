@@ -1,0 +1,92 @@
+# From https://github.com/clach04/github_action_pebble_build/
+name: PebbleBuild
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events for any branch (see commented out `branches` lines for  master branch example)
+  push:
+    branches: [master]
+  pull_request:
+    # External Pull Request requires confirmation BEFORE action fires https://docs.github.com/en/actions/managing-workflow-runs/approving-workflow-runs-from-public-forks 
+    branches: [master]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    # from https://levelup.gitconnected.com/how-to-manually-trigger-a-github-actions-workflow-4712542f1960
+    inputs:
+      git-ref:
+        description: Git Ref (Optional)    
+        required: false
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-22.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Sanity checks for debugging, if/when problems occur
+      - name: pyver
+        run: python   --version
+      - name: whichpy3
+        run: which python3
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # from https://levelup.gitconnected.com/how-to-manually-trigger-a-github-actions-workflow-4712542f1960
+      - name: Clone Repository (Latest)
+        uses: actions/checkout@v2
+        if: github.event.inputs.git-ref == ''
+      - name: Clone Repository (Custom Ref)
+        uses: actions/checkout@v2
+        if: github.event.inputs.git-ref != ''
+        with:
+          ref: ${{ github.event.inputs.git-ref }}
+      - uses: actions/setup-node@v2
+      #- name: apt-getsudo
+      #  run: apt-get update; apt-get -qq install -y sudo
+
+      - name: apt-get
+        run: sudo apt-get update && sudo apt-get install -y curl ca-certificates git python3-pip python3-venv nodejs npm libsdl1.2debian libsdl2-dev libfdt1 build-essential wget;
+      - name: uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: install pebble-tool
+        run: export PATH="$PATH:/home/runner/.local/bin:/home/runner/.cargo/bin" && uv tool install pebble-tool
+      - name: install pebble-sdk
+        run: pebble sdk install latest
+      - name: pebble-build
+        run: pebble build
+      - name: Upload PBW
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: PebblePBW
+          path: ./**/*.pbw
+      - name: Extract Version
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        id: extract_version
+        run: |
+          VERSION=$(jq -r '.version' package.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV    
+      - name: Create Release
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: Pebble Build v${{ env.VERSION }}
+          draft: false
+          prerelease: false
+      - name: Upload PBW to Release
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/velowatch.pbw    # adjust path to your actual PBW
+          asset_name: velowatch.pbw
+          asset_content_type: application/octet-stream
