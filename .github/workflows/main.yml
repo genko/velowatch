@@ -3,9 +3,10 @@ name: PebbleBuild
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events for any branch (see commented out `branches` lines for  master branch example)
+  # push: Triggered when a PR is merged to master (release is created)
   push:
     branches: [master]
+  # pull_request: Only builds and verifies the code without creating a release
   pull_request:
     # External Pull Request requires confirmation BEFORE action fires https://docs.github.com/en/actions/managing-workflow-runs/approving-workflow-runs-from-public-forks 
     branches: [master]
@@ -57,6 +58,8 @@ jobs:
         run: pebble sdk install latest
       - name: pebble-build
         run: pebble build
+      # Release steps: Only run when a PR is merged to master (push event) or manual trigger
+      # This ensures PRs only build and verify without creating releases
       - name: Upload PBW
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
