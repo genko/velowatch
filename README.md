@@ -67,21 +67,21 @@ Only Time and Time Steel are supported.
 
 ### Building
 
-Install and use the rebbletool found under https://github.com/richinfante/rebbletool
+Install and use the rebbletool found under https://developer.repebble.com/sdk/
 
 Build with
 ```
-rebble build
+pebble build
 ```
 
 Run with
 ```
-rebble install --emulator basalt
+pebble install --emulator basalt
 ```
 
 Open app config with
 ```
-rebble emu-app-config
+pebble emu-app-config
 ```
 
 If app config does not work, you can create the file src/pkjs/dev-config.js to set values for Clay keys (for convenience), e.g.
@@ -92,8 +92,7 @@ module.exports.owmApiKey = owmApiKey;
 
 If emulator does not go past the pebble screen kill emulator and do a 
 ```
-rebble wipe
+pebble wipe
 ```
 
 The `.pbw` output can be found in the `build` directory on the host machine.
-
