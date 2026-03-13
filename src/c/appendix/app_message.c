@@ -147,7 +147,9 @@ void app_message_init() {
   app_message_register_inbox_dropped(inbox_dropped_callback);
 
   // Open AppMessage
-  const int inbox_size = 256;
+  // Weather payload is ~305 bytes (15 keys x 7B overhead + data); 320 gives a
+  // small safety margin without wasting heap like app_message_inbox_size_maximum().
+  const int inbox_size = 320;
   const int outbox_size = 0;
   app_message_open(inbox_size, outbox_size);
 }
