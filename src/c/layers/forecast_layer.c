@@ -85,21 +85,6 @@ static void forecast_update_proc(Layer *layer, GContext *ctx) {
     }
   }
 
-  // Draw rain amount as vertical bars (low nibble, 0-15 maps to 0-45 mm/h clamped)
-  graphics_context_set_stroke_width(ctx, 3); // Only odd stroke width values supported
-  graphics_context_set_stroke_color(
-      ctx, PBL_IF_COLOR_ELSE(GColorCobaltBlue, GColorLightGray));
-  for (int i = 0; i < num_entries; ++i) {
-    int entry_x = graph_bounds.origin.x + (int)(i * entry_w);
-    int amount_raw = (precips[i] & 0x0F); // 0-15, where 15 = >=45 mm/h
-    int amount_h = (float)amount_raw / 15.0 * (h - BOTTOM_AXIS_H);
-    if (amount_h > 0) {
-      graphics_draw_line(ctx,
-                         GPoint(entry_x, h - BOTTOM_AXIS_H),
-                         GPoint(entry_x, h - BOTTOM_AXIS_H - amount_h));
-    }
-  }
-
   // Draw rain probability as a blue line (no fill)
   GPathInfo path_info_precip = {.num_points = num_entries,
                                 .points = points_precip};
@@ -129,6 +114,22 @@ static void forecast_update_proc(Layer *layer, GContext *ctx) {
       ctx, 3); // Only odd stroke width values supported
   gpath_draw_outline_open(ctx, path_temp);
   gpath_destroy(path_temp);
+
+  // Draw rain amount as vertical bars (low nibble, 0-15 maps to 0-45 mm/h clamped)
+  // Drawn last so bars appear on top of all other lines
+  graphics_context_set_stroke_width(ctx, 3); // Only odd stroke width values supported
+  graphics_context_set_stroke_color(
+      ctx, PBL_IF_COLOR_ELSE(GColorCobaltBlue, GColorLightGray));
+  for (int i = 0; i < num_entries; ++i) {
+    int entry_x = graph_bounds.origin.x + (int)(i * entry_w);
+    int amount_raw = (precips[i] & 0x0F); // 0-15, where 15 = >=45 mm/h
+    int amount_h = (float)amount_raw / 15.0 * (h - BOTTOM_AXIS_H);
+    if (amount_h > 0) {
+      graphics_draw_line(ctx,
+                         GPoint(entry_x, h - BOTTOM_AXIS_H),
+                         GPoint(entry_x, h - BOTTOM_AXIS_H - amount_h));
+    }
+  }
 
   // Draw a line for the bottom axis
   graphics_context_set_stroke_color(
