@@ -44,7 +44,7 @@ Pebble.addEventListener("ready", function (e) {
 function startTick() {
   console.log("Tick from PKJS!");
   tryFetch(app.provider);
-  setTimeout(startTick, 60 * 1000); // 60 * 1000 milsec = 1 minute
+  setTimeout(startTick, 5 * 60 * 1000); // 5 * 60 * 1000 milsec = 5 minutes
 }
 
 function sendClaySettings() {
@@ -81,7 +81,7 @@ function sendClaySettings() {
     },
     function (e) {
       console.log("Message failed: " + JSON.stringify(e));
-    }
+    },
   );
 }
 
@@ -102,7 +102,7 @@ function setProvider(providerId) {
       break;
     default:
       console.log(
-        'Unknown provider: "' + providerId + '", defaulting to openweathermap'
+        'Unknown provider: "' + providerId + '", defaulting to openweathermap',
       );
       clay.setSettings("provider", "openweathermap");
       app.provider = new OpenWeatherMapProvider(app.settings.owmApiKey);
@@ -172,7 +172,7 @@ function fetch(provider, force) {
       // Failure
       console.log("[!] Provider failed to update weather");
     },
-    force
+    force,
   );
 }
 
