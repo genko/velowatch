@@ -1,5 +1,4 @@
 const SunCalc = require("suncalc");
-const RiDuck = require("../riduck/riduck");
 const OpenHolidays = require("../openholidaysapi/openholidaysapi");
 
 function request(url, type, callback) {
@@ -16,12 +15,9 @@ var WeatherProvider = function () {
   this.numDays = 7;
   this.name = "Template";
   this.id = "interface";
-  this.advice = 0;
   this.uvi = 0;
   this.holidays = 0;
   this.location = null; // Address query used for overriding the GPS
-  this.riduckUser = "";
-  this.riduckPassword = "";
   this.openHolidaysCountry = "";
   this.openHolidaysRegional = "";
 };
@@ -62,7 +58,7 @@ WeatherProvider.prototype.withSunEvents = function (lat, lon, callback) {
   };
 
   var sunEvents = processResults(resultsToday).concat(
-    processResults(resultsTomorrow)
+    processResults(resultsTomorrow),
   );
   var nextSunEvents = sunEvents.filter(function (sunEvent) {
     return sunEvent.date > dateNow;
@@ -72,13 +68,13 @@ WeatherProvider.prototype.withSunEvents = function (lat, lon, callback) {
     "The next " +
       sunEvents[0].type +
       " is at " +
-      sunEvents[0].date.toTimeString()
+      sunEvents[0].date.toTimeString(),
   );
   console.log(
     "The next " +
       sunEvents[1].type +
       " is at " +
-      sunEvents[1].date.toTimeString()
+      sunEvents[1].date.toTimeString(),
   );
   callback(next24HourSunEvents);
 };
@@ -114,7 +110,7 @@ WeatherProvider.prototype.withGeocodeCoordinates = function (callback) {
 
   console.log(
     "WeatherProvider.prototype.withGeocodeCoordinates lets regex, this.location: " +
-      JSON.stringify(this.location)
+      JSON.stringify(this.location),
   );
   if (m != null) {
     var latitude = m[1];
@@ -136,7 +132,7 @@ WeatherProvider.prototype.withGeocodeCoordinates = function (callback) {
             " geocoded to " +
             closest.lat +
             ", " +
-            closest.lon
+            closest.lon,
         );
         console.log("closest.lat " + JSON.stringify(closest.lat));
         console.log("closest " + JSON.stringify(closest));
@@ -158,7 +154,7 @@ WeatherProvider.prototype.withGpsCoordinates = function (callback) {
       "FOUND LOCATION: lat= " +
         pos.coords.latitude +
         " lon= " +
-        pos.coords.longitude
+        pos.coords.longitude,
     );
     callback(pos.coords.latitude, pos.coords.longitude);
   }
@@ -166,33 +162,6 @@ WeatherProvider.prototype.withGpsCoordinates = function (callback) {
     console.log("location error (" + err.code + "): " + err.message);
   }
   navigator.geolocation.getCurrentPosition(success, error, options);
-};
-
-WeatherProvider.prototype.withRiDuck = function (callback) {
-  console.log("Trying to connect to RiDuck");
-  if (this.riduckPassword === "" || this.riduckUser === "") {
-    console.log("Riduck: Error: No RiDuck credentials");
-    callback(0);
-  } else {
-    var riduck = new RiDuck();
-    riduck.login(
-      this.riduckUser,
-      this.riduckPassword,
-      function (token) {
-        if (token === "") {
-          console.log("Riduck: Error: Did not get RiDuck JWT");
-          callback(0);
-        } else {
-          riduck.fetchAdvice(
-            token,
-            function (advice) {
-              callback(advice);
-            }.bind(this)
-          );
-        }
-      }.bind(this)
-    );
-  }
 };
 
 WeatherProvider.prototype.withOpenHolidays = function (callback) {
@@ -207,7 +176,7 @@ WeatherProvider.prototype.withOpenHolidays = function (callback) {
       this.openHolidaysRegional,
       function (bitmask) {
         callback(bitmask);
-      }.bind(this)
+      }.bind(this),
     );
   }
 };
@@ -226,7 +195,7 @@ WeatherProvider.prototype.withProviderData = function (
   lat,
   lon,
   force,
-  callback
+  callback,
 ) {
   console.log("This is the fallback implementation of withProviderData");
   callback();
@@ -239,61 +208,56 @@ WeatherProvider.prototype.fetch = function (onSuccess, onFailure, force) {
         lat,
         lon,
         function (cityName) {
-          this.withRiDuck(
-            function (advice) {
-              this.withOpenHolidays(
-                function (holidays) {
-                  this.withSunEvents(
+          this.withOpenHolidays(
+            function (holidays) {
+              this.withSunEvents(
+                lat,
+                lon,
+                function (sunEvents) {
+                  this.withProviderData(
                     lat,
                     lon,
-                    function (sunEvents) {
-                      this.withProviderData(
-                        lat,
-                        lon,
-                        force,
-                        function () {
-                          // if `this` (the provider) contains valid weather details,
-                          // then we can safely call this.getPayload()
-                          if (this.hasValidData()) {
-                            console.log("Lets get the payload for " + cityName);
-                            // Send to Pebble
-                            this.cityName = cityName;
-                            this.sunEvents = sunEvents;
-                            this.advice = advice;
-                            this.holidays = holidays;
-                            payload = this.getPayload();
-                            Pebble.sendAppMessage(
-                              payload,
-                              function (e) {
-                                console.log(
-                                  "Weather info sent to Pebble successfully!"
-                                );
-                                onSuccess();
-                              },
-                              function (e) {
-                                console.log(
-                                  "Error sending weather info to Pebble!"
-                                );
-                                onFailure();
-                              }
-                            );
-                          } else {
+                    force,
+                    function () {
+                      // if `this` (the provider) contains valid weather details,
+                      // then we can safely call this.getPayload()
+                      if (this.hasValidData()) {
+                        console.log("Lets get the payload for " + cityName);
+                        // Send to Pebble
+                        this.cityName = cityName;
+                        this.sunEvents = sunEvents;
+                        this.holidays = holidays;
+                        payload = this.getPayload();
+                        Pebble.sendAppMessage(
+                          payload,
+                          function (e) {
                             console.log(
-                              "Error: Fetch cancelled: insufficient data."
+                              "Weather info sent to Pebble successfully!",
+                            );
+                            onSuccess();
+                          },
+                          function (e) {
+                            console.log(
+                              "Error sending weather info to Pebble!",
                             );
                             onFailure();
-                          }
-                        }.bind(this)
-                      );
-                    }.bind(this)
+                          },
+                        );
+                      } else {
+                        console.log(
+                          "Error: Fetch cancelled: insufficient data.",
+                        );
+                        onFailure();
+                      }
+                    }.bind(this),
                   );
-                }.bind(this)
+                }.bind(this),
               );
-            }.bind(this)
+            }.bind(this),
           );
-        }.bind(this)
+        }.bind(this),
       );
-    }.bind(this)
+    }.bind(this),
   );
 };
 
@@ -342,7 +306,7 @@ WeatherProvider.prototype.getPayload = function () {
     this.windSpeed.slice(0, this.numEntries).map(function (windspeed) {
       if (windspeed > 255) windspeed = 255;
       return Math.round(windspeed);
-    })
+    }),
   );
   var daysTemp = this.daysTemp
     .slice(0, this.numDays)
@@ -375,10 +339,10 @@ WeatherProvider.prototype.getPayload = function () {
   }
   console.log(
     "precipMMH (raw mm/h from OWM): " +
-      JSON.stringify(this.precipMMH.slice(0, this.numEntries))
+      JSON.stringify(this.precipMMH.slice(0, this.numEntries)),
   );
   console.log(
-    "precips_amount (scaled 0-15): " + JSON.stringify(precips_amount)
+    "precips_amount (scaled 0-15): " + JSON.stringify(precips_amount),
   );
   console.log("precips_prob (scaled 0-15): " + JSON.stringify(precips));
   console.log(
@@ -388,7 +352,7 @@ WeatherProvider.prototype.getPayload = function () {
         .map(function (b) {
           return "0x" + b.toString(16);
         })
-        .join(", ")
+        .join(", "),
   );
   var daysPrecips = this.daysPop
     .slice(0, this.numDays)
@@ -399,21 +363,21 @@ WeatherProvider.prototype.getPayload = function () {
   var daysTempIntView = new Int16Array(daysTemp);
   var daysIconsIntView = new Int16Array(daysIcons);
   var tempsByteArray = Array.prototype.slice.call(
-    new Uint8Array(tempsIntView.buffer)
+    new Uint8Array(tempsIntView.buffer),
   );
   var daysTempsByteArray = Array.prototype.slice.call(
-    new Uint8Array(daysTempIntView.buffer)
+    new Uint8Array(daysTempIntView.buffer),
   );
   var daysIconByteArray = Array.prototype.slice.call(
-    new Uint8Array(daysIconsIntView.buffer)
+    new Uint8Array(daysIconsIntView.buffer),
   );
   var sunEventsIntView = new Int32Array(
     this.sunEvents.map(function (sunEvent) {
       return sunEvent.date.getTime() / 1000; // Seconds since epoch
-    })
+    }),
   );
   var sunEventsByteArray = Array.prototype.slice.call(
-    new Uint8Array(sunEventsIntView.buffer)
+    new Uint8Array(sunEventsIntView.buffer),
   );
   var payload = {
     TEMP_TREND_INT16: tempsByteArray,
@@ -423,7 +387,6 @@ WeatherProvider.prototype.getPayload = function () {
     PRECIP_TREND_UINT8: Array.prototype.slice.call(combined),
     WINDSPEED_TREND_UINT8: Array.prototype.slice.call(windSpeeds),
     FORECAST_START: this.startTime,
-    ADVICE: this.advice,
     HOLIDAYS: this.holidays,
     NUM_ENTRIES: this.numEntries,
     NUM_DAYS: this.numDays,
@@ -432,7 +395,7 @@ WeatherProvider.prototype.getPayload = function () {
     CITY: this.cityName,
     // The first byte determines whether the list of events starts on a sunrise (0) or sunset (1)
     SUN_EVENTS: [this.sunEvents[0].type == "sunrise" ? 0 : 1].concat(
-      sunEventsByteArray
+      sunEventsByteArray,
     ),
   };
   console.log(JSON.stringify(payload, null, 2));

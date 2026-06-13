@@ -1,6 +1,7 @@
 #include "app_message.h"
 #include "c/layers/forecast_layer.h"
 #include "c/layers/loading_layer.h"
+#include "c/layers/velo_layer.h"
 #include "c/layers/weather_status_layer.h"
 #include "c/windows/main_window.h"
 #include "math.h"
@@ -19,7 +20,6 @@ static void inbox_received_callback(DictionaryIterator *iterator,
   Tuple *windspeed_trend_tuple =
       dict_find(iterator, MESSAGE_KEY_WINDSPEED_TREND_UINT8);
   Tuple *forecast_start_tuple = dict_find(iterator, MESSAGE_KEY_FORECAST_START);
-  Tuple *advice_tuple = dict_find(iterator, MESSAGE_KEY_ADVICE);
   Tuple *holidays_tuple = dict_find(iterator, MESSAGE_KEY_HOLIDAYS);
   Tuple *num_entries_tuple = dict_find(iterator, MESSAGE_KEY_NUM_ENTRIES);
   Tuple *num_days_tuple = dict_find(iterator, MESSAGE_KEY_NUM_DAYS);
@@ -52,16 +52,14 @@ static void inbox_received_callback(DictionaryIterator *iterator,
 
   if (temp_trend_tuple && temp_days_tuple && icon_days_tuple &&
       percip_days_tuple && num_days_tuple && temp_trend_tuple &&
-      forecast_start_tuple && advice_tuple && current_uvi_tuple &&
+      forecast_start_tuple && current_uvi_tuple &&
       holidays_tuple && num_entries_tuple && city_tuple && sun_events_tuple) {
     // Weather data received
     APP_LOG(APP_LOG_LEVEL_INFO, "All tuples received!");
     persist_set_forecast_start((time_t)forecast_start_tuple->value->int32);
     const int num_entries = ((int)num_entries_tuple->value->int32);
     const int num_days = ((int)num_days_tuple->value->int32);
-    const int advice_data = ((int)advice_tuple->value->int32);
     const int holidays_data = ((int)holidays_tuple->value->int32);
-    persist_set_advice(advice_data);
     persist_set_holidays(holidays_data);
     persist_set_num_entries(num_entries);
     persist_set_num_days(num_days);
@@ -95,6 +93,7 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     loading_layer_refresh();
     forecast_layer_refresh();
     weather_status_layer_refresh();
+    velo_layer_refresh();
   } else if (clay_celsius_tuple && clay_axis_12h_tuple && clay_vibe_tuple &&
              clay_show_qt_tuple && clay_show_bt_tuple &&
              clay_show_bt_disconnect_tuple && clay_show_am_pm_tuple &&
