@@ -48,6 +48,11 @@ module.exports = function (minified) {
 
             // Copied from original handler ($.off requires non-anonymous handler)
             var returnTo = window.returnTo || 'pebblejs://close#';
+            // Emulator file:// workaround: read return URL from fragment
+            if (returnTo.indexOf('$$$RETURN_TO$$$') === 0 || window.location.hash.length > 1) {
+                var hashReturn = window.location.hash.slice(1);
+                if (hashReturn) returnTo = hashReturn;
+            }
             location.href = returnTo +
                 encodeURIComponent(JSON.stringify(clayConfig.serialize()));
         })

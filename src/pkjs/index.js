@@ -81,7 +81,7 @@ function sendClaySettings() {
     },
     function (e) {
       console.log("Message failed: " + JSON.stringify(e));
-    },
+    }
   );
 }
 
@@ -100,7 +100,7 @@ function setProvider(providerId) {
       break;
     default:
       console.log(
-        'Unknown provider: "' + providerId + '", defaulting to openweathermap',
+        'Unknown provider: "' + providerId + '", defaulting to openweathermap'
       );
       clay.setSettings("provider", "openweathermap");
       app.provider = new OpenWeatherMapProvider(app.settings.owmApiKey);
@@ -170,7 +170,7 @@ function fetch(provider, force) {
       // Failure
       console.log("[!] Provider failed to update weather");
     },
-    force,
+    force
   );
 }
 

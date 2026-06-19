@@ -27,9 +27,9 @@ static void main_window_load(Window *window) {
 
   forecast_layer_create(window_layer,
                         GRect(0, h - FORECAST_HEIGHT, w, FORECAST_HEIGHT));
-  velo_layer_create(
-      window_layer,
-      GRect(0, CALENDAR_STATUS_HEIGHT + CALENDAR_HEIGHT, w, VELO_HEIGHT));
+   velo_layer_create(
+       window_layer,
+       GRect(0, CALENDAR_STATUS_HEIGHT + CALENDAR_HEIGHT - 3, w, VELO_HEIGHT));
   weather_status_layer_create(
       window_layer, GRect(0, h - FORECAST_HEIGHT - WEATHER_STATUS_HEIGHT, w,
                           WEATHER_STATUS_HEIGHT));
@@ -37,7 +37,7 @@ static void main_window_load(Window *window) {
       window_layer,
       GRect(0, h - FORECAST_HEIGHT - WEATHER_STATUS_HEIGHT - TIME_HEIGHT,
             bounds.size.w, TIME_HEIGHT));
-  calendar_layer_create(window_layer, GRect(0, CALENDAR_STATUS_HEIGHT,
+  calendar_layer_create(window_layer, GRect(0, CALENDAR_STATUS_HEIGHT - 1,
                                             bounds.size.w, CALENDAR_HEIGHT));
   calendar_status_layer_create(
       window_layer,

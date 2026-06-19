@@ -50,55 +50,55 @@
           "type": "bitmap",
           "name": "IMAGE_WEATHER_CLEAR_DAY",
           "file": "img/weather/clear_day.png",
-          "memoryFormat": "1Bit"
+          "memoryFormat": "8Bit"
         },
         {
           "type": "bitmap",
           "name": "IMAGE_WEATHER_CLEAR_NIGHT",
           "file": "img/weather/clear_night.png",
-          "memoryFormat": "1Bit"
+          "memoryFormat": "8Bit"
         },
         {
           "type": "bitmap",
           "name": "IMAGE_WEATHER_FEW_CLOUDS",
           "file": "img/weather/few_clouds.png",
-          "memoryFormat": "1Bit"
+          "memoryFormat": "8Bit"
         },
         {
           "type": "bitmap",
           "name": "IMAGE_WEATHER_CLOUDS",
           "file": "img/weather/clouds.png",
-          "memoryFormat": "1Bit"
+          "memoryFormat": "8Bit"
         },
         {
           "type": "bitmap",
           "name": "IMAGE_WEATHER_RAIN",
           "file": "img/weather/rain.png",
-          "memoryFormat": "1Bit"
+          "memoryFormat": "8Bit"
         },
         {
           "type": "bitmap",
           "name": "IMAGE_WEATHER_THUNDERSTORM",
           "file": "img/weather/thunderstorm.png",
-          "memoryFormat": "1Bit"
+          "memoryFormat": "8Bit"
         },
         {
           "type": "bitmap",
           "name": "IMAGE_WEATHER_SNOW",
           "file": "img/weather/snow.png",
-          "memoryFormat": "1Bit"
+          "memoryFormat": "8Bit"
         },
         {
           "type": "bitmap",
           "name": "IMAGE_WEATHER_MIST",
           "file": "img/weather/mist.png",
-          "memoryFormat": "1Bit"
+          "memoryFormat": "8Bit"
         },
         {
           "type": "bitmap",
           "name": "IMAGE_WEATHER_DRIZZLE",
           "file": "img/weather/drizzle.png",
-          "memoryFormat": "1Bit"
+          "memoryFormat": "8Bit"
         }
       ]
     },

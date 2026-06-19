@@ -5,7 +5,7 @@
 #define NUM_WEEKS 1
 #define DAYS_PER_WEEK 7
 #define FONT_OFFSET 5
-#define ICON_SIZE 16
+#define ICON_SIZE 18
 
 static Layer *s_velo_layer;
 static TextLayer *s_calendar_text_layers[NUM_WEEKS * DAYS_PER_WEEK];
