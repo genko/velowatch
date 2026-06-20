@@ -1,8 +1,7 @@
 var OpenWeatherMapProvider = require("./weather/openweathermap.js");
-var Clay = require("./clay/_source.js");
-var clayConfig = require("./clay/config.js");
-var customClay = require("./clay/inject.js");
-var clay = new Clay(clayConfig, customClay, { autoHandleEvents: false });
+var Clay = require("@rebble/clay");
+var clayConfig = require("./config.js");
+var clay = new Clay(clayConfig);
 var app = {}; // Namespace for global app variables
 
 Pebble.addEventListener("showConfiguration", function (e) {

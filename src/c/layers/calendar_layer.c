@@ -3,12 +3,11 @@
 #include "c/appendix/persist.h"
 #include <time.h>
 
-#define NUM_WEEKS 1
 #define DAYS_PER_WEEK 7
 #define FONT_OFFSET 5
 
 static Layer *s_calendar_layer;
-static TextLayer *s_calendar_text_layers[NUM_WEEKS * DAYS_PER_WEEK];
+static TextLayer *s_calendar_text_layers[DAYS_PER_WEEK];
 
 static struct tm *relative_tm(int days_from_today) {
   /* Get a time structure for n days from today (only accurate to the day)
@@ -41,9 +40,9 @@ void calendar_layer_create(Layer *parent_layer, GRect frame) {
   int w = bounds.size.w;
   int h = bounds.size.h;
   float box_w = (float)w / DAYS_PER_WEEK;
-  float box_h = (float)h / NUM_WEEKS;
+  float box_h = (float)h;
 
-  for (int i = 0; i < NUM_WEEKS * DAYS_PER_WEEK; ++i) {
+  for (int i = 0; i < DAYS_PER_WEEK; ++i) {
     // Place a text box in that space
     TextLayer *s_box_text_layer = text_layer_create(GRect(
         (i % DAYS_PER_WEEK) * box_w, (i / DAYS_PER_WEEK) * box_h - FONT_OFFSET,
@@ -59,11 +58,11 @@ void calendar_layer_create(Layer *parent_layer, GRect frame) {
 }
 
 void calendar_layer_refresh() {
-  static char s_calendar_box_buffers[NUM_WEEKS * DAYS_PER_WEEK][4];
+  static char s_calendar_box_buffers[DAYS_PER_WEEK][4];
   layer_mark_dirty(s_calendar_layer);
 
   // Fill each box with an appropriate relative day number
-  for (int i = 0; i < NUM_WEEKS * DAYS_PER_WEEK; ++i) {
+  for (int i = 0; i < DAYS_PER_WEEK; ++i) {
     char *buffer = s_calendar_box_buffers[i];
     struct tm *t = relative_tm(i);
 
@@ -85,7 +84,7 @@ void calendar_layer_refresh() {
 }
 
 void calendar_layer_destroy() {
-  for (int i = 0; i < NUM_WEEKS * DAYS_PER_WEEK; ++i) {
+  for (int i = 0; i < DAYS_PER_WEEK; ++i) {
     text_layer_destroy(s_calendar_text_layers[i]);
   }
   layer_destroy(s_calendar_layer);
