@@ -11,7 +11,6 @@
 
 static Layer *s_calendar_status_layer;
 static TextLayer *s_calendar_month_layer;
-static TextLayer *s_calendar_month_layer;
 static GBitmap *s_mute_bitmap;
 static GBitmap *s_bt_bitmap;
 static GBitmap *s_bt_disconnect_bitmap;
@@ -120,12 +119,29 @@ void status_icons_refresh() {
   bluetooth_icons_refresh(connection_service_peek_pebble_app_connection());
 }
 
+static const char *g_month_names_en[] = {
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
+static const char *g_month_names_de[] = {
+    "Jan", "Feb", "M\u00e4r", "Apr", "Mai", "Jun",
+    "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"};
+
 void calendar_status_layer_refresh() {
-  static char s_buffer_month[10];
+  static char s_buffer_month[14];
   time_t now = time(NULL);
   struct tm *tm_now = localtime(&now);
 
-  strftime(s_buffer_month, sizeof(s_buffer_month), "%b %Y", tm_now);
+  const char *locale = i18n_get_system_locale();
+  bool german = (locale[0] == 'd' && locale[1] == 'e');
+  const char **month_names = german ? g_month_names_de : g_month_names_en;
+  int mon = tm_now->tm_mon;
+  if (mon >= 0 && mon < 12) {
+    snprintf(s_buffer_month, sizeof(s_buffer_month), "%s %d",
+             month_names[mon], tm_now->tm_year + 1900);
+  } else {
+    s_buffer_month[0] = '\0';
+  }
   text_layer_set_text(s_calendar_month_layer, s_buffer_month);
   status_icons_refresh();
 }

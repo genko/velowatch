@@ -75,8 +75,8 @@ void calendar_layer_refresh() {
     bool highlight_saturday = (config_highlight_saturdays() && t->tm_wday == 6);
     bool bold = highlight_holiday || highlight_sunday || highlight_saturday;
     text_layer_set_font(s_calendar_text_layers[i],
-                        fonts_get_system_font(bold ? FONT_KEY_GOTHIC_18_BOLD
-                                                   : FONT_KEY_GOTHIC_18));
+                        fonts_get_system_font(bold ? FONT_KEY_GOTHIC_24_BOLD
+                                                   : FONT_KEY_GOTHIC_24));
 
     snprintf(buffer, 4, "%d", t->tm_mday);
     text_layer_set_text(s_calendar_text_layers[i], buffer);

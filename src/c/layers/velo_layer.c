@@ -5,7 +5,7 @@
 #define NUM_WEEKS 1
 #define DAYS_PER_WEEK 7
 #define FONT_OFFSET 5
-#define ICON_SIZE 18
+#define ICON_SIZE 25
 
 static Layer *s_velo_layer;
 static TextLayer *s_calendar_text_layers[NUM_WEEKS * DAYS_PER_WEEK];
@@ -37,8 +37,9 @@ static uint32_t owm_to_icon_resource(int owm_code) {
 }
 
 static void velo_update_proc(Layer *layer, GContext *ctx) {
-  (void)layer; // Unused
-  (void)ctx;   // Unused
+  GRect bounds = layer_get_bounds(layer);
+  float box_w = (float)bounds.size.w / DAYS_PER_WEEK;
+
   // Load data from storage
   const int num_days = persist_get_num_days();
   int16_t temps[num_days];
@@ -50,21 +51,29 @@ static void velo_update_proc(Layer *layer, GContext *ctx) {
   persist_get_days_icon(icons, num_days);
   persist_get_precip_days(precips, num_days);
 
+  int temp_h = bounds.size.h - ICON_SIZE - 4;
+
+  // Draw blue background for rainy entries (precipitation > 50%)
+  graphics_context_set_fill_color(ctx, GColorBlue);
+  for (int i = 0; i < NUM_WEEKS * DAYS_PER_WEEK; ++i) {
+    if (i < num_days && precips[i] > 50) {
+      GRect bg_rect = GRect((int)(i * box_w), 0,
+                            (int)((i + 1) * box_w) - (int)(i * box_w),
+                            temp_h + 4);
+      graphics_fill_rect(ctx, bg_rect, 0, GCornerNone);
+    }
+  }
+
   // Fill each box with temperature and update weather icons
   for (int i = 0; i < NUM_WEEKS * DAYS_PER_WEEK; ++i) {
     char *buffer = s_calendar_box_buffers[i];
 
-    // Set temperature text color based on precipitation
-    GColor text_color = GColorWhite;
-    if (i < num_days && precips[i] > 50) {
-      text_color = GColorBlue;
-    }
-    text_layer_set_text_color(s_calendar_text_layers[i], text_color);
+    text_layer_set_text_color(s_calendar_text_layers[i], GColorWhite);
 
     bool bold = true;
     text_layer_set_font(s_calendar_text_layers[i],
-                        fonts_get_system_font(bold ? FONT_KEY_GOTHIC_18_BOLD
-                                                   : FONT_KEY_GOTHIC_18));
+                        fonts_get_system_font(bold ? FONT_KEY_GOTHIC_24_BOLD
+                                                   : FONT_KEY_GOTHIC_24));
 
     if (i < num_days) {
       snprintf(buffer, 4, "%d", config_localize_temp(temps[i]));

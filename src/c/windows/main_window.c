@@ -9,10 +9,10 @@
 #include "c/layers/weather_status_layer.h"
 
 #define FORECAST_HEIGHT 51
-#define VELO_HEIGHT 36
+#define VELO_HEIGHT 48
 #define WEATHER_STATUS_HEIGHT 14
 #define TIME_HEIGHT 45
-#define CALENDAR_HEIGHT 18
+#define CALENDAR_HEIGHT 24
 #define CALENDAR_STATUS_HEIGHT 13
 
 static Window *s_main_window;
