@@ -128,29 +128,47 @@ OpenWeatherMapProvider.prototype.withProviderData = function (
       this.daysPop = weatherData.daily.map(function (entry) {
         return entry.pop;
       });
-      // Compute 3-period precipitation (morning, midday, afternoon) per day
+      // Compute 3-period precipitation (morning, midday, afternoon) per day.
+      // Uses the daily pop (same source as the weather icon) as the authoritative
+      // daily value. The rainiest period gets at least dailyPop; other periods use
+      // their raw hourly max; periods without hourly data fall back to dailyPop.
       var dailyData = weatherData.daily;
       var hourlyData = weatherData.hourly;
       this.daysPopPeriods = [];
       for (var d = 0; d < 7; d++) {
+        var dailyPop = Math.round(dailyData[d].pop * 100);
         var dayStart = dailyData[d].dt;
         var dayEnd = dayStart + 86400;
-        var periods = [[], [], []];
+        var periodPops = [0, 0, 0];
+        var hasHourly = [false, false, false];
         for (var h = 0; h < hourlyData.length; h++) {
           var hr = hourlyData[h];
           if (hr.dt >= dayStart && hr.dt < dayEnd) {
             var hourOfDay = new Date(hr.dt * 1000).getUTCHours();
             var periodIdx = hourOfDay < 8 ? 0 : hourOfDay < 16 ? 1 : 2;
-            periods[periodIdx].push(hr.pop);
+            hasHourly[periodIdx] = true;
+            var pct = Math.round(hr.pop * 100);
+            if (pct > periodPops[periodIdx]) periodPops[periodIdx] = pct;
           }
         }
-        for (var p = 0; p < 3; p++) {
-          if (periods[p].length > 0) {
-            var max = Math.max.apply(null, periods[p]);
-            this.daysPopPeriods.push(Math.round(max * 100));
-          } else {
-            this.daysPopPeriods.push(Math.round(dailyData[d].pop * 100));
+        var anyHourly = hasHourly[0] || hasHourly[1] || hasHourly[2];
+        if (anyHourly) {
+          // The rainiest period gets at least dailyPop
+          var bestP = 0;
+          for (var p = 1; p < 3; p++) {
+            if (periodPops[p] > periodPops[bestP]) bestP = p;
           }
+          if (dailyPop > periodPops[bestP]) periodPops[bestP] = dailyPop;
+          // Periods without hourly data fall back to dailyPop
+          for (var p = 0; p < 3; p++) {
+            if (!hasHourly[p]) periodPops[p] = dailyPop;
+          }
+        } else {
+          // No hourly data: use dailyPop for all periods
+          for (var p = 0; p < 3; p++) periodPops[p] = dailyPop;
+        }
+        for (var p = 0; p < 3; p++) {
+          this.daysPopPeriods.push(periodPops[p]);
         }
       }
       this.daysMMH = weatherData.daily.map(function (entry) {
