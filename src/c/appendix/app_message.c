@@ -51,7 +51,7 @@ static void inbox_received_callback(DictionaryIterator *iterator,
       dict_find(iterator, MESSAGE_KEY_CLAY_COLOR_TIME);
 
   if (temp_trend_tuple && temp_days_tuple && icon_days_tuple &&
-      percip_days_tuple && num_days_tuple && temp_trend_tuple &&
+      percip_days_tuple && num_days_tuple &&
       forecast_start_tuple && current_uvi_tuple &&
       holidays_tuple && num_entries_tuple && city_tuple && sun_events_tuple) {
     // Weather data received

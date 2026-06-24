@@ -21,6 +21,10 @@ static GColor *s_bt_palette;
 static GColor *s_bt_disconnect_palette;
 static GColor *s_mute_palette;
 
+static void bluetooth_icons_refresh(bool connected);
+static void bluetooth_callback(bool connected);
+static bool show_qt_icon();
+
 static void bitmap_layer_move_frame(BitmapLayer *bitmap_layer, GRect frame) {
   layer_set_frame(bitmap_layer_get_layer(bitmap_layer), frame);
 }
@@ -91,7 +95,7 @@ void calendar_status_layer_create(Layer *parent_layer, GRect frame) {
   layer_add_child(parent_layer, s_calendar_status_layer);
 }
 
-void bluetooth_icons_refresh(bool connected) {
+static void bluetooth_icons_refresh(bool connected) {
   bool show_bt = connected && g_config->show_bt;
   bool show_bt_disconnect = !connected && g_config->show_bt_disconnect;
   layer_set_hidden(bitmap_layer_get_layer(s_bt_bitmap_layer), !show_bt);
@@ -99,13 +103,13 @@ void bluetooth_icons_refresh(bool connected) {
                    !show_bt_disconnect);
 }
 
-void bluetooth_callback(bool connected) {
+static void bluetooth_callback(bool connected) {
   bluetooth_icons_refresh(connected);
   if (!connected && g_config->vibe)
     vibes_double_pulse();
 }
 
-bool show_qt_icon() { return g_config->show_qt && quiet_time_is_active(); }
+static bool show_qt_icon() { return g_config->show_qt && quiet_time_is_active(); }
 
 void status_icons_refresh() {
   bool show_qt = show_qt_icon();

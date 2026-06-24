@@ -1,6 +1,4 @@
 #include "math.h"
-#include "config.h"
-#include "persist.h"
 #include <pebble.h>
 
 void min_max(int16_t *array, int n, int *min, int *max) {
@@ -16,7 +14,7 @@ void min_max(int16_t *array, int n, int *min, int *max) {
   }
 }
 
-int roundFloat(float num) { return num < 0 ? num - 0.5 : num + 0.5; }
+static int roundFloat(float num) { return num < 0 ? num - 0.5 : num + 0.5; }
 
 int f_to_c(int temp_f) {
   // Convert a fahrenheit temperature to celcius

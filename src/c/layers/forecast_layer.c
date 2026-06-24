@@ -40,8 +40,8 @@ static void forecast_update_proc(Layer *layer, GContext *ctx) {
   min_max(temps, num_entries, &lo, &hi);
   int range = hi - lo;
 
-  // Draw a bounding box for each data entry (the -1 is since we don't want a
-  // gap on either side)
+  // Divide by (num_entries - 1) so the first entry is at x=0 and the last at
+  // the right edge of the graph, evenly spacing all entries across the width
   float entry_w = (float)graph_bounds.size.w / (num_entries - 1);
   graphics_context_set_text_color(ctx, GColorWhite);
   graphics_context_set_stroke_color(ctx, GColorLightGray);
