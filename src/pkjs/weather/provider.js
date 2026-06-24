@@ -354,11 +354,7 @@ WeatherProvider.prototype.getPayload = function () {
         })
         .join(", ")
   );
-  var daysPrecips = this.daysPop
-    .slice(0, this.numDays)
-    .map(function (probability) {
-      return Math.round(probability * 100);
-    });
+  var daysPrecips = this.daysPopPeriods.slice(0, this.numDays * 3);
   var tempsIntView = new Int16Array(temps);
   var daysTempIntView = new Int16Array(daysTemp);
   var daysIconsIntView = new Int16Array(daysIcons);

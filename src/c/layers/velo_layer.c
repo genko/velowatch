@@ -44,23 +44,31 @@ static void velo_update_proc(Layer *layer, GContext *ctx) {
   const int num_days = persist_get_num_days();
   int16_t temps[num_days];
   int16_t icons[num_days];
-  uint8_t precips[num_days];
+  uint8_t precips[num_days * 3];
   static char s_calendar_box_buffers[NUM_WEEKS * DAYS_PER_WEEK][4];
 
   persist_get_days_trend(temps, num_days);
   persist_get_days_icon(icons, num_days);
-  persist_get_precip_days(precips, num_days);
+  persist_get_precip_days(precips, num_days * 3);
 
   int temp_h = bounds.size.h - ICON_SIZE - 4;
 
-  // Draw blue background for rainy entries (precipitation > 50%)
+  // Draw blue background segments for rainy periods (precipitation > 50%)
   graphics_context_set_fill_color(ctx, GColorBlue);
   for (int i = 0; i < NUM_WEEKS * DAYS_PER_WEEK; ++i) {
-    if (i < num_days && precips[i] > 50) {
-      GRect bg_rect = GRect((int)(i * box_w), 0,
-                            (int)((i + 1) * box_w) - (int)(i * box_w),
-                            temp_h + 4);
-      graphics_fill_rect(ctx, bg_rect, 0, GCornerNone);
+    if (i < num_days) {
+      int col_x = (int)(i * box_w);
+      int col_w = (int)((i + 1) * box_w) - col_x;
+      int bg_h = temp_h + 4;
+      int seg_h = bg_h / 3;
+      for (int p = 0; p < 3; p++) {
+        if (precips[i * 3 + p] > 50) {
+          int seg_y = p * seg_h;
+          int seg_height = (p == 2) ? (bg_h - seg_y) : seg_h;
+          GRect bg_rect = GRect(col_x, seg_y, col_w, seg_height);
+          graphics_fill_rect(ctx, bg_rect, 0, GCornerNone);
+        }
+      }
     }
   }
 

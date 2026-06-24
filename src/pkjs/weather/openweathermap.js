@@ -128,6 +128,31 @@ OpenWeatherMapProvider.prototype.withProviderData = function (
       this.daysPop = weatherData.daily.map(function (entry) {
         return entry.pop;
       });
+      // Compute 3-period precipitation (morning, midday, afternoon) per day
+      var dailyData = weatherData.daily;
+      var hourlyData = weatherData.hourly;
+      this.daysPopPeriods = [];
+      for (var d = 0; d < 7; d++) {
+        var dayStart = dailyData[d].dt;
+        var dayEnd = dayStart + 86400;
+        var periods = [[], [], []];
+        for (var h = 0; h < hourlyData.length; h++) {
+          var hr = hourlyData[h];
+          if (hr.dt >= dayStart && hr.dt < dayEnd) {
+            var hourOfDay = new Date(hr.dt * 1000).getUTCHours();
+            var periodIdx = hourOfDay < 8 ? 0 : hourOfDay < 16 ? 1 : 2;
+            periods[periodIdx].push(hr.pop);
+          }
+        }
+        for (var p = 0; p < 3; p++) {
+          if (periods[p].length > 0) {
+            var max = Math.max.apply(null, periods[p]);
+            this.daysPopPeriods.push(Math.round(max * 100));
+          } else {
+            this.daysPopPeriods.push(Math.round(dailyData[d].pop * 100));
+          }
+        }
+      }
       this.daysMMH = weatherData.daily.map(function (entry) {
         return entry.rain ? entry.rain : 0;
       });

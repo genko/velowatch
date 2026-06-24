@@ -43,8 +43,9 @@ void persist_init() {
     persist_write_data(DAYS_ICON, (void *)data, 7 * sizeof(int16_t));
   }
   if (!persist_exists(PRECIP_DAYS)) {
-    uint8_t data[] = {0, 0, 0, 0, 0, 0, 0};
-    persist_write_data(PRECIP_DAYS, (void *)data, 7 * sizeof(uint8_t));
+    uint8_t data[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    persist_write_data(PRECIP_DAYS, (void *)data, 21 * sizeof(uint8_t));
   }
   if (!persist_exists(PRECIP_TREND)) {
     uint8_t data[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};

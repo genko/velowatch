@@ -73,7 +73,7 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     persist_set_days_icon(days_icon, num_days);
 
     uint8_t *precip_days = (uint8_t *)percip_days_tuple->value->data;
-    persist_set_precip_days(precip_days, num_days);
+    persist_set_precip_days(precip_days, num_days * 3);
 
     uint8_t *precip_data = (uint8_t *)precip_trend_tuple->value->data;
     uint8_t *windspeed_data = (uint8_t *)windspeed_trend_tuple->value->data;
@@ -148,7 +148,7 @@ void app_message_init() {
   // Open AppMessage
   // Weather payload is ~305 bytes (15 keys x 7B overhead + data); 320 gives a
   // small safety margin without wasting heap like app_message_inbox_size_maximum().
-  const int inbox_size = 320;
+  const int inbox_size = 340;
   const int outbox_size = 0;
   app_message_open(inbox_size, outbox_size);
 }

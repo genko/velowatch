@@ -43,7 +43,7 @@ Pebble.addEventListener("ready", function (e) {
 function startTick() {
   console.log("Tick from PKJS!");
   tryFetch(app.provider);
-  setTimeout(startTick, 5 * 60 * 1000); // 5 * 60 * 1000 milsec = 5 minutes
+  setTimeout(startTick, 10 * 60 * 1000); // 10 * 60 * 1000 milsec = 10 minutes
 }
 
 function sendClaySettings() {
