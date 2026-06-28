@@ -1,7 +1,7 @@
 #include "bike_layer.h"
 
 #define IMAGE_SIZE_X 200
-#define IMAGE_SIZE_Y 100
+#define IMAGE_SIZE_Y 145
 
 static Layer *s_bike_layer;
 static BitmapLayer *s_bike_image_layer;
