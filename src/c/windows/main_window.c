@@ -1,5 +1,6 @@
 #include "main_window.h"
 #include "c/appendix/persist.h"
+#include "c/appendix/tap_event.h"
 #include "c/layers/calendar_layer.h"
 #include "c/layers/calendar_status_layer.h"
 #include "c/layers/forecast_layer.h"
@@ -7,6 +8,7 @@
 #include "c/layers/time_layer.h"
 #include "c/layers/velo_layer.h"
 #include "c/layers/weather_status_layer.h"
+#include "c/layers/bike_layer.h"
 
 #define FORECAST_HEIGHT 51
 #define VELO_HEIGHT 48
@@ -14,6 +16,7 @@
 #define TIME_HEIGHT 45
 #define CALENDAR_HEIGHT 24
 #define CALENDAR_STATUS_HEIGHT 13
+#define BIKE_HEIGHT 100
 
 static Window *s_main_window;
 
@@ -25,20 +28,22 @@ static void main_window_load(Window *window) {
   int h = bounds.size.h;
   window_set_background_color(window, GColorBlack);
 
-  forecast_layer_create(window_layer,
-                        GRect(0, h - FORECAST_HEIGHT, w, FORECAST_HEIGHT));
    velo_layer_create(
        window_layer,
        GRect(0, CALENDAR_STATUS_HEIGHT + CALENDAR_HEIGHT - 3, w, VELO_HEIGHT));
+  bike_layer_create(window_layer, GRect(0, 0, w, h));
   weather_status_layer_create(
       window_layer, GRect(0, h - FORECAST_HEIGHT - WEATHER_STATUS_HEIGHT, w,
                           WEATHER_STATUS_HEIGHT));
+  forecast_layer_create(window_layer,
+                        GRect(0, h - FORECAST_HEIGHT, w, FORECAST_HEIGHT));
   time_layer_create(
       window_layer,
-      GRect(0, h - FORECAST_HEIGHT - WEATHER_STATUS_HEIGHT - TIME_HEIGHT,
+      GRect(0, CALENDAR_STATUS_HEIGHT + CALENDAR_HEIGHT - 3 + VELO_HEIGHT,
             bounds.size.w, TIME_HEIGHT));
   calendar_layer_create(window_layer, GRect(0, CALENDAR_STATUS_HEIGHT - 1,
                                             bounds.size.w, CALENDAR_HEIGHT));
+
   calendar_status_layer_create(
       window_layer,
       GRect(0, 0, bounds.size.w,
@@ -46,6 +51,11 @@ static void main_window_load(Window *window) {
   loading_layer_create(window_layer,
                        GRect(0, h - FORECAST_HEIGHT - WEATHER_STATUS_HEIGHT, w,
                              FORECAST_HEIGHT + WEATHER_STATUS_HEIGHT));
+
+  // Initially hide weather and forecast (toggled by tap)
+  weather_status_layer_set_hidden(true);
+  forecast_layer_set_hidden(true);
+
   loading_layer_refresh();
 }
 
@@ -54,9 +64,17 @@ static void main_window_unload(Window *window) {
   weather_status_layer_destroy();
   forecast_layer_destroy();
   velo_layer_destroy();
+   bike_layer_destroy();
   calendar_layer_destroy();
   calendar_status_layer_destroy();
   loading_layer_destroy();
+}
+
+static void sync_weather_visibility(void) {
+  bool visible = tap_is_weather_visible();
+  weather_status_layer_set_hidden(!visible);
+  forecast_layer_set_hidden(!visible);
+  bike_layer_set_hidden(visible);
 }
 
 static void minute_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -71,6 +89,7 @@ static void minute_handler(struct tm *tick_time, TimeUnits units_changed) {
   status_icons_refresh();
   loading_layer_refresh();
   calendar_layer_refresh();
+  sync_weather_visibility();
 }
 
 /*----------------------------

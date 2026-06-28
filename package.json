@@ -100,6 +100,12 @@
           "name": "IMAGE_WEATHER_DRIZZLE",
           "file": "img/weather/drizzle.png",
           "memoryFormat": "8Bit"
+        },
+        {
+          "type": "bitmap",
+          "name": "IMAGE_BIKE",
+          "file": "img/bike/scene-100.png",
+          "memoryFormat": "8Bit"
         }
       ]
     },

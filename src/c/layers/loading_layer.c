@@ -1,5 +1,6 @@
 #include "loading_layer.h"
 #include "c/appendix/persist.h"
+#include "c/appendix/tap_event.h"
 
 static Layer *s_loading_layer;
 static TextLayer *s_loading_text_layer;
@@ -34,6 +35,11 @@ void loading_layer_create(Layer *parent_layer, GRect frame) {
 }
 
 void loading_layer_refresh() {
+  // Only show the loading/no-data notice when weather is visible
+  if (!tap_is_weather_visible()) {
+    layer_set_hidden(s_loading_layer, true);
+    return;
+  }
   const time_t forecast_start = persist_get_forecast_start();
   const time_t now = time(NULL);
   if (now - forecast_start > 60 * 60 * 12)    // 60 sec/min * 60 min/h * 12h

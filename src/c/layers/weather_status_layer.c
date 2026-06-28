@@ -186,6 +186,12 @@ void weather_status_layer_refresh() {
   city_layer_refresh();
 }
 
+void weather_status_layer_set_hidden(bool hidden) {
+  if (s_weather_status_layer) {
+    layer_set_hidden(s_weather_status_layer, hidden);
+  }
+}
+
 void weather_status_layer_destroy() {
   text_layer_destroy(s_city_layer);
   text_layer_destroy(s_current_temp_layer);

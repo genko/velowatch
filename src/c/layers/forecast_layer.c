@@ -190,6 +190,12 @@ void forecast_layer_refresh() {
   text_layers_refresh();
 }
 
+void forecast_layer_set_hidden(bool hidden) {
+  if (s_forecast_layer) {
+    layer_set_hidden(s_forecast_layer, hidden);
+  }
+}
+
 void forecast_layer_destroy() {
   text_layer_destroy(s_hi_layer);
   text_layer_destroy(s_lo_layer);
