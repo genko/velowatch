@@ -59,7 +59,7 @@ static void forecast_update_proc(Layer *layer, GContext *ctx) {
     int windspeed = windspeeds[i];
     if (windspeed > 50)
       windspeed = 50;
-    int windspeed_h = (float)windspeed / 50.0 * (h - BOTTOM_AXIS_H);
+    int windspeed_h = (float)windspeed / 50.0 * (h - BOTTOM_AXIS_H) * 2;
     points_windspeed[i] = GPoint(entry_x, h - BOTTOM_AXIS_H - windspeed_h);
     // Save a point for the temperature reading
     int temp = temps[i];
@@ -123,7 +123,7 @@ static void forecast_update_proc(Layer *layer, GContext *ctx) {
   for (int i = 0; i < num_entries; ++i) {
     int entry_x = graph_bounds.origin.x + (int)(i * entry_w);
     int amount_raw = (precips[i] & 0x0F); // 0-15, where 15 = >=45 mm/h
-    int amount_h = (float)amount_raw / 15.0 * (h - BOTTOM_AXIS_H);
+    int amount_h = (float)amount_raw / 15.0 * (h - BOTTOM_AXIS_H) * 2;
     if (amount_h > 0) {
       graphics_draw_line(ctx,
                          GPoint(entry_x, h - BOTTOM_AXIS_H),
